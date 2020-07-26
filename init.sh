@@ -20,45 +20,46 @@ mkdir Wordpress
 cd Wordpress
 touch docker-compose.yml
 echo "version: '3'
+
 services:
-wordpress:
-image: wordpress:latest
-depends_on:
-- db
-restart: always
-volumes:
-- ./wp_data:/var/www/html
-links:
-- \"db:db\"
-environment:
-WORDPRESS_DB_USER: wp_user
-WORDPRESS_DB_PASSWORD: 7rHBE1QJAtUWeGW3LjNhhWDkgaLDcaAm
-WORDPRESS_DB_HOST: db:3306
+  wordpress:
+    image: wordpress:latest
+    depends_on:
+      - db
+    restart: always
+    volumes:
+      - ./wp_data:/var/www/html
+    links:
+      - \"db:db\"
+    environment:
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: 7rHBE1QJAtUWeGW3LjNhhWDkgaLDcaAm
+      WORDPRESS_DB_HOST: db:3306
 
-db:
-image: mysql:5.7
-command: --default-authentication-plugin=mysql_native_password --innodb-use-native-aio=0
-restart: always
-environment:
-MYSQL_ROOT_PASSWORD: NZe9ZmZpv00LDYZoRWCNcC4KvaIJKGFM
-MYSQL_DATABASE: wordpress
-MYSQL_USER: wp_user
-MYSQL_PASSWORD: 7rHBE1QJAtUWeGW3LjNhhWDkgaLDcaAm
-volumes:
-- ./data:/var/lib/mysql
+  db:
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password --innodb-use-native-aio=0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: NZe9ZmZpv00LDYZoRWCNcC4KvaIJKGFM
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wp_user
+      MYSQL_PASSWORD: 7rHBE1QJAtUWeGW3LjNhhWDkgaLDcaAm
+    volumes:
+      - ./data:/var/lib/mysql
 
-web:
-build: .
-volumes:
-- ./default.conf:/etc/nginx/conf.d/default.conf
-ports:
-- \"80:80\"
-- \"443:443\"
-links:
-- \"wordpress:wordpress\"
-depends_on:
-- wordpress
-- db
+  web:
+    build: .
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - \"80:80\"
+      - \"443:443\"
+    links:
+      - \"wordpress:wordpress\"
+    depends_on:
+      - wordpress
+      - db
 "> docker-compose.yml
 touch Dockerfile
 echo "FROM nginx
