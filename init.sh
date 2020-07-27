@@ -60,12 +60,22 @@ services:
     depends_on:
       - wordpress
       - db
+      
+  certbot:
+    depends_on:
+      - web
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./data/ssl:/etc/letsencrypt
+      - ./wp_data:/var/www/html
+    command: certonly --webroot --webroot-path=/var/www/html --email gergo.huszti@syscops.com --agree-tos --no-eff-email --force-renewal -d 94.237.80.167
 "> docker-compose.yml
 touch Dockerfile
 echo "FROM nginx
 WORKDIR /usr/share/nginx/html/
 COPY default.conf /etc/nginx/conf.d/
-ADD ssl /etc/nginx/ssl/
+#ADD ssl /etc/nginx/ssl/
 EXPOSE 443
 EXPOSE 80" > Dockerfile
 touch default.conf
@@ -109,35 +119,35 @@ proxy_pass http://wordpress;
 #}
 }
 
-server {
-listen 443 ssl;
-server_name localhost;
-
-ssl_certificate /etc/nginx/ssl/server.crt;
-ssl_certificate_key /etc/nginx/ssl/server-rsa.key;
-ssl_certificate /etc/nginx/ssl/certificate.crt;
-ssl_certificate_key /etc/nginx/ssl/private.key;
-ssl_trusted_certificate /etc/nginx/ssl/ca_bundle.crt;
-
-ssl_protocols TLSv1.3 TLSv1.2 TLSv1.1 TLSv1;
-
-access_log /var/log/nginx/access.log main;
-error_log /var/log/nginx/error.log info;
-
-location / {
-proxy_http_version 1.1;
-proxy_set_header Upgrade \$http_upgrade;
-proxy_set_header Connection 'upgrade';
-proxy_set_header Host \$host;
-proxy_set_header X-Forwarded-For \$remote_addr;
-proxy_set_header X-Forwarded-Proto \$scheme;
-proxy_cache_bypass \$http_upgrade;
-proxy_set_header X-Real-IP \$remote_addr;
-proxy_read_timeout 300;
-proxy_connect_timeout 300;
-proxy_set_header Host \$host;
-proxy_pass http://wordpress;
- }
-}" > default.conf
+#server {
+#listen 443 ssl;
+#server_name localhost;
+#
+#ssl_certificate /etc/nginx/ssl/server.crt;
+#ssl_certificate_key /etc/nginx/ssl/server-rsa.key;
+#ssl_certificate /etc/nginx/ssl/certificate.crt;
+#ssl_certificate_key /etc/nginx/ssl/private.key;
+#ssl_trusted_certificate /etc/nginx/ssl/ca_bundle.crt;
+#
+#ssl_protocols TLSv1.3 TLSv1.2 TLSv1.1 TLSv1;
+#
+#access_log /var/log/nginx/access.log main;
+#error_log /var/log/nginx/error.log info;
+#
+#location / {
+#proxy_http_version 1.1;
+#proxy_set_header Upgrade \$http_upgrade;
+#proxy_set_header Connection 'upgrade';
+#proxy_set_header Host \$host;
+#proxy_set_header X-Forwarded-For \$remote_addr;
+#proxy_set_header X-Forwarded-Proto \$scheme;
+#proxy_cache_bypass \$http_upgrade;
+#proxy_set_header X-Real-IP \$remote_addr;
+#proxy_read_timeout 300;
+#proxy_connect_timeout 300;
+#proxy_set_header Host \$host;
+#proxy_pass http://wordpress;
+# }
+#}" > default.conf
 
 docker-compose up -d
